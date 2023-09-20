@@ -8,25 +8,26 @@ const main = () => {
   const mainEvents = CalendarApp.getCalendarById(MAIN_CALENDAR_ID).getEventsForDay(now);
   const todoistEvents = CalendarApp.getCalendarById(TODOIST_CALENDAR_ID).getEventsForDay(now);
 
-  let eventMessage = "";
-  let eventCount = 0;
-  mainEvents.forEach((event, index) => {
-    eventMessage += formatEvent(event, now) + (index !== mainEvents.length - 1 ? "\n" : "");
-    eventCount++;
-  });
-
-  let todoMessage = "";
-  let todoCount = 0;
-  todoistEvents.forEach((event, index) => {
-    todoMessage += formatEvent(event, now) + (index !== todoistEvents.length - 1 ? "\n" : "");
-    todoCount++;
-  });
+  const {message: eventMessage, count: eventCount} = generateEventMessage(mainEvents, now);
+  const {message: todoMessage, count: todoCount} = generateEventMessage(todoistEvents, now);
 
   if (eventCount > 0 || todoCount > 0) {
     const message = `\n本日の予定をお知らせします（https://calendar.google.com/calendar/u/0/r/day）\n\n\`✅ToDo (${todoCount})\`\n${todoMessage}\n\n\`🗓️予定 (${eventCount})\`\n${eventMessage}`;
     sendLineNotify(message);
   }
 };
+
+const generateEventMessage = (events, now) => {
+  let message = "";
+  let count = 0;
+  
+  events.forEach((event, index) => {
+    message += formatEvent(event, now) + (index !== events.length - 1 ? "\n" : "");
+    count++;
+  });
+
+  return {message, count}
+}
 
 const formatEvent = (event, now) => {
   const timeZone = "JST";
